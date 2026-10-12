@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бургерная — доставка еды</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f5;color:#242424;font-family:Arial,sans-serif}
+header{background:#fff;padding:18px 6%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;box-shadow:0 2px 12px #0000000b}
+.logo{font-size:23px;font-weight:900;color:#e94d25}
+header button,.primary{background:#ed5028;color:white;border:0;padding:13px 19px;border-radius:12px;font-weight:bold;cursor:pointer}
+.hero{margin:24px auto;background:#242424;color:white;border-radius:24px;max-width:1100px;padding:45px 6%;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.hero h1{font-size:clamp(32px,5vw,54px);margin:0 0 12px}
+.hero p{color:#ddd;line-height:1.5}
+.hero img{width:42%;max-width:400px;border-radius:20px;object-fit:cover}
+main{max-width:1100px;margin:35px auto;padding:0 18px}
+.categories{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.categories button{border:0;background:white;border-radius:22px;padding:12px 18px;cursor:pointer}
+.categories button.active{background:#242424;color:white}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{background:white;border-radius:18px;overflow:hidden;padding-bottom:17px}
+.card img{width:100%;height:175px;object-fit:cover}
+.card h3,.card p,.card .buy{margin-left:15px;margin-right:15px}
+.card p{color:#777;font-size:14px;min-height:34px}
+.buy{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.buy button{border:0;border-radius:10px;background:#fff0e9;color:#df4822;font-size:22px;width:43px;height:40px;cursor:pointer}
+.price{font-weight:bold}
+.panel{margin:35px 0;background:white;padding:24px;border-radius:18px}
+input,textarea,select{width:100%;padding:13px;margin:7px 0 13px;border:1px solid #ddd;border-radius:10px;font:inherit}
+.row{display:flex;gap:12px}
+.row>*{flex:1;min-width:0}
+footer{text-align:center;padding:25px;color:#777}
+max-width:600px{.hero{margin:15px;padding:25px;flex-direction:column;align-items:flex-start}.hero img{width:100%;max-width:none}.row{flex-direction:column}header{padding:14px}.logo{font-size:19px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🔥 БУРГЕРНАЯ</div>
+  <button onclick="document.querySelector('#cart').scrollIntoView({behavior:'smooth'})">🛒 Корзина <span id="count">0</span></button>
+</header>
+<section class="hero">
+  <div>
+    <h1>Вкусно.<b
+чно. Быстро.</h1>
+    <p>Готовим с любовью. Выбирай любимые блюда!</p>
+    <button class="primary" onclick="document.querySelector('#menu').scrollIntoView({behavior:'smooth'})">Выбрать еду ↓</button>
+  </div>
+  <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" alt="Сочный бургер">
+</section>
+<main>
+<h2 id="menu">Наше меню</h2>
+<div class="categories" id="categories"></div>
+<div class="menu" id="products"></div>
+<section class="panel" id="cart">
+<h2>🛒 Твой заказ</h2>
+<div id="cartItems">Пока ничего не выбрано</div>
+<h3>Итого: <span id="total">0</span> ₽</h3>
+<h2>Данные для заказа</h2>
+<form id="orderForm">
+<label>Ваше имя</label><input id="customer" placeholder="Как к вам обращаться?" required>
+<label>Телефон</label><input id="phone" type="tel" placeholder="+7..." required>
+<label>Получение заказа</label>
+<select id="delivery"><option>Доставка</option><option>Самовывоз</option></select>
+<label>Адрес доставки</label><input id="address" placeholder="Улица, дом, квартира">
+<label>Комментарий</label><textarea id="comment" placeholder="Например, не класть лук"></textarea>
+<button class="primary" type="submit">Оформить заказ</button>
+</form>
+<div id="result"></div>
+</section>
+</main>
+<footer>БУРГЕРНАЯ · Вкусно каждый день</footer>
+<script>
+const items=[
+{id:1,name:"Классический бургер",cat:"Бургеры",price:390,desc:"Говяжья котлета, сыр, овощи",img:"photo-1568901346375-23c9450c58cd"},
+{id:2,name:"Чизбургер",cat:"Бургеры",price:350,desc:"Сыр, сочная
+
+
+отлета и соус",img:"photo-157 burger"},
+{id:3,name:"Картофель фри",cat:"Закуски",price:190,desc:"Хрустящий золотистый картофель",img:"photo-1573080496219-bb080dd4f877"},
+{id:4,name:"Пицца пепперони",cat:"Пицца",price:590,desc:"Сыр, томаты и пепперони",img:"photo-1628840042765-356cda07504e"},
+{id:5,name:"Куриные наггетсы",cat:"Закуски",price:260,desc:"Хрустящая курочка",img:"photo-1562967914-608f82629710"},
+{id:6,name:"Кола",cat:"Напитки",price:120,desc:"Освежающий напиток",img:"photo-1629203851122-3726ecdf080e"}
+];
+const cart={};
+let category="Все";
+const imageUrl=id=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=700&q=80";
+function renderCategories(){
+ const cats=["Все",...new Set(items.map(x=>x.cat))];
+ document.querySelector("#categories").innerHTML=cats.map(c=>`<button class="${category===c?'active':''}" onclick="category='${c}';renderCategories();renderProducts()">${c}</button>`).join("");
+}
+function renderProducts(){
+ document.querySelector("#products").innerHTML=items.filter(x=>category==="Все"||x.cat===category).map(x=>`
+ <article class="card"><img src="${imageUrl(x.img)}" alt="${x.name}" onerror="this.style.display='none'">
+ <h3>${x.name}</h3><p>${x.desc}</p><div class="buy"><span class="price">${x.price} ₽</span><button onclick="change(${x.id},1)">+</button></div></article>`).join("");
+}
+function change(id,n){cart[id]=Math.max(0,(cart[id]||0)+n);renderCart()}
+function renderCart(){
+ const chosen=items.filter(x=>cart[x.id]>0);
+ document.querySelector("#count").textContent=chosen.reduce((s,x)=>s+cart[x.id],0);
+ document.querySelector("#cartItems").innerHTML=chosen.length?chosen.map(x=>`<p>${x.name} — ${x.price} ₽ × ${cart[x.id]} <button onclick="change(${x.id},-1)">−</button> <button onclick="change(${x.id},1)">+</button></p>`).join(""):"Пока ничего не выбрано";
+ document.querySelector("#total").textContent=chosen.reduce((s,x)=>s+x.price*cart[x.id],0);
+}
+document.querySelector("#orderForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ if(!items.some(x=>cart[x.id]>0)){alert("Добавьте блюда в корзину");return}
+ const number=Date.now().toString().slice(-6);
+ document.querySelector("#result").innerHTML=`<h2>✅ Заказ №${number} оформлен!</h2><p>Это демонстрация сайта. Заказ никуда не отправлен.</p>`;
+});
+renderCategories();renderProducts();renderCart();
+</script>
+</body>
+</html> к
